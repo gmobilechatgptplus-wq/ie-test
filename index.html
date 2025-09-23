@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8" />
+  <title>I/E Reaction Test (MVP)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; display: grid; place-items: center; height: 100svh; margin: 0; background:#0b1220; color:#eaf0ff; }
+    .card { width: min(720px, 92vw); background:#111a2c; border-radius:16px; padding:24px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    h1 { margin: 0 0 8px; font-weight: 700; }
+    .muted { color:#98a8c9; font-size:14px; margin-bottom: 16px; }
+    .word { font-size: clamp(28px, 6vw, 48px); text-align:center; padding: 32px 0; letter-spacing: .5px; }
+    .row { display:flex; gap:12px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
+    button { font-size:18px; padding:14px 20px; border-radius:12px; border:1px solid #2a395a; background:#17223a; color:#eaf0ff; cursor:pointer; }
+    button:hover { background:#1c2a48; }
+    .pill { font-size:13px; padding:6px 10px; border-radius:999px; border:1px solid #2a395a; color:#98a8c9; }
+    .ok { color:#5de4a9; } .bad { color:#ff8b8b; }
+    .hidden { display:none; }
+    textarea { width:100%; height:120px; }
+    .small { font-size: 13px; color:#9eb0d3 }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width:640px){ .grid{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>I / E Reaction Test</h1>
+    <div class="muted">Үг гарч ирэх бүрт “I” (эерэг) эсвэл “E” (сөрөг)-г дарна. Хэт хурдан даралт (<200ms) бол тооцохгүй.</div>
+
+    <div id="setup">
+      <div class="grid">
+        <div>
+          <label class="small">Оролцогчийн ID / Имэйл (сонголттой):</label>
+          <input id="participant" placeholder="user123 эсвэл name@example.com" style="width:100%; padding:10px; border-radius:10px; border:1px solid #2a395a; background:#0f1830; color:#eaf0ff;">
+        </div>
+        <div>
+          <label class="small">Anti-spam босго:</label>
+          <input id="minRt" type="number" value="200" style="width:100%; padding:10px; border-radius:10px; border:1px solid #2a395a; background:#0f1830; color:#eaf0ff;">
+          <div class="small">Хариултын доод хугацаа (ms). Жишээ нь: 200</div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:16px;">
+        <button id="btnStart">Эхлэх</button>
+      </div>
+    </div>
+
+    <div id="stage" class="hidden">
+      <div class="row">
+        <span class="pill">Үг: <span id="idx">0</span>/<span id="total">0</span></span>
+        <span class="pill">Valid: <span id="validCount">0</span></span>
+        <span class="pill">Invalid: <span id="invalidCount">0</span></span>
+      </div>
+      <div class="word" id="word">—</div>
+      <div class="row">
+        <button id="btnI">I (эерэг)</button>
+        <button id="btnE">E (сөрөг)</button>
+      </div>
+      <div class="row">
+        <button id="btnUndo">Сүүлчийн хариултыг буцаах</button>
+        <button id="btnFinish">Дуусгах</button>
+      </div>
+    </div>
+
+    <div id="result" class="hidden">
+      <h3>Үр дүн</h3>
+      <div id="summary" class="muted"></div>
+      <div class="row">
+        <button id="btnDownloadCsv">CSV татах</button>
+        <button id="btnSendEmail">Имэйлээр илгээх</button>
+      </div>
+      <div style="margin-top:12px;">
+        <label class="small">Илгээх endpoint (Google Apps Script Web App URL):</label>
+        <input id="endpoint" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" style="width:100%; padding:10px; border-radius:10px; border:1px solid #2a395a; background:#0f1830; color:#eaf0ff;">
+      </div>
+      <div style="margin-top:12px;">
+        <label class="small">Debug JSON:</label>
+        <textarea id="debug"></textarea>
+      </div>
+      <div id="status" class="small"></div>
+    </div>
+  </div>
+
+<script>
+  // ===== 1) Тохиргоо / Үгийн багц =====
+  const WORDS = [
+    "Happy","Sad","Love","Anger","Peace","Hate","Proud","Shame","Smile","Fear",
+    "Joy","Pain","Friend","Enemy","Warm","Cold"
+  ];
+  const SHUFFLE = true; // Үгийг эхлэхэд холих эсэх
+  const SAME_KEY_SPAM_WINDOW = 5;  // дараалан 5 удаа адил товч дарсан бол …
+  const SAME_KEY_SPAM_RT = 250;    // тухайн 5-н дундаж < 250ms бол spam гэж тэмдэглэнэ
+
+  // ===== 2) Төлөв =====
+  let seq = [];
+  let i = 0;
+  let startTime = 0;
+  let records = [];     // бүх raw мөрүүд
+  let minValidRt = 200; // UI-с авна
+  let participant = "";
+
+  // spam шалгалтад туслах
+  let lastAnswers = [];   // сүүлийн n товчны "I" / "E"
+  let lastRTs = [];       // сүүлийн n RT
+
+  // ===== 3) Элементийн холбоос =====
+  const elSetup = document.getElementById('setup');
+  const elStage = document.getElementById('stage');
+  const elResult = document.getElementById('result');
+  const elWord = document.getElementById('word');
+  const elIdx = document.getElementById('idx');
+  const elTotal = document.getElementById('total');
+  const elValid = document.getElementById('validCount');
+  const elInvalid = document.getElementById('invalidCount');
+  const elSummary = document.getElementById('summary');
+  const elDebug = document.getElementById('debug');
+  const elStatus = document.getElementById('status');
+
+  // ===== 4) Туслах функцууд =====
+  function shuffle(a) {
+    for (let j = a.length - 1; j > 0; j--) {
+      const k = Math.floor(Math.random() * (j + 1));
+      [a[j], a[k]] = [a[k], a[j]];
+    }
+    return a;
+  }
+
+  function nowTs() {
+    return new Date().toISOString();
+  }
+
+  function pushAnswer(answer, rt) {
+    // window spam шалгалт
+    lastAnswers.push(answer);
+    lastRTs.push(rt);
+    if (lastAnswers.length > SAME_KEY_SPAM_WINDOW) {
+      lastAnswers.shift(); lastRTs.shift();
+    }
+    let spamSeries = false;
+    if (lastAnswers.length === SAME_KEY_SPAM_WINDOW) {
+      const allSame = lastAnswers.every(v => v === lastAnswers[0]);
+      const avgRt = lastRTs.reduce((a,b)=>a+b,0)/lastRTs.length;
+      if (allSame && avgRt < SAME_KEY_SPAM_RT) spamSeries = true;
+    }
+    const invalid = (rt < minValidRt) || spamSeries;
+
+    records.push({
+      idx: i+1,
+      word: seq[i],
+      answer,
+      rt_ms: rt,
+      ts: nowTs(),
+      participant,
+      valid: !invalid,
+      reason: invalid ? (rt < minValidRt ? `too_fast_${rt}ms` : 'spam_series') : ''
+    });
+  }
+
+  function updateCounters() {
+    const validN = records.filter(r => r.valid).length;
+    const invalidN = records.length - validN;
+    elValid.textContent = validN;
+    elInvalid.textContent = invalidN;
+    elIdx.textContent = Math.min(records.length + 1, seq.length);
+  }
+
+  function toCSV(rows) {
+    const cols = ["idx","word","answer","rt_ms","ts","participant","valid","reason"];
+    const header = cols.join(",");
+    const body = rows.map(r => cols.map(c => {
+      const v = r[c];
+      const s = String(v ?? "");
+      return `"${s.replace(/"/g,'""')}"`;
+    }).join(",")).join("\n");
+    return header + "\n" + body;
+  }
+
+  function downloadFile(name, content, mime="text/csv") {
+    const blob = new Blob([content], {type: mime});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // ===== 5) Урсгал =====
+  document.getElementById('btnStart').addEventListener('click', () => {
+    participant = document.getElementById('participant').value.trim();
+    minValidRt = parseInt(document.getElementById('minRt').value || "200", 10);
+
+    seq = [...WORDS];
+    if (SHUFFLE) shuffle(seq);
+
+    i = 0; records = []; lastAnswers = []; lastRTs = [];
+    elTotal.textContent = seq.length;
+    elSetup.classList.add('hidden');
+    elStage.classList.remove('hidden');
+    showWord();
+  });
+
+  function showWord() {
+    if (i >= seq.length) return finish();
+    elWord.textContent = seq[i];
+    startTime = performance.now();
+    updateCounters();
+  }
+
+  function answer(a) {
+    const rt = Math.round(performance.now() - startTime);
+    pushAnswer(a, rt);
+    i++;
+    if (i < seq.length) showWord(); else finish();
+  }
+
+  document.getElementById('btnI').addEventListener('click', ()=>answer('I'));
+  document.getElementById('btnE').addEventListener('click', ()=>answer('E'));
+
+  document.getElementById('btnUndo').addEventListener('click', () => {
+    if (!records.length) return;
+    records.pop();
+    i = Math.max(0, i - 1);
+    lastAnswers.pop();
+    lastRTs.pop();
+    showWord();
+  });
+
+  document.getElementById('btnFinish').addEventListener('click', finish);
+
+  function finish() {
+    elStage.classList.add('hidden');
+    elResult.classList.remove('hidden');
+
+    const validRows = records.filter(r => r.valid);
+    const avgI = average(validRows.filter(r => r.answer === 'I').map(r=>r.rt_ms));
+    const avgE = average(validRows.filter(r => r.answer === 'E').map(r=>r.rt_ms));
+
+    elSummary.innerHTML = `
+      Нийт: ${records.length} • Valid: <span class="ok">${validRows.length}</span> • Invalid: <span class="bad">${records.length - validRows.length}</span><br>
+      I (эерэг) дундаж RT: <b>${isFinite(avgI)?Math.round(avgI):'-'}</b> ms<br>
+      E (сөрөг) дундаж RT: <b>${isFinite(avgE)?Math.round(avgE):'-'}</b> ms
+    `;
+
+    const payload = {
+      meta: {
+        generated_at: nowTs(),
+        participant,
+        min_valid_rt_ms: minValidRt,
+        same_key_spam_window: SAME_KEY_SPAM_WINDOW,
+        same_key_spam_rt_ms: SAME_KEY_SPAM_RT,
+        total: records.length,
+        valid: validRows.length,
+        invalid: records.length - validRows.length,
+        avg_rt_I: avgI,
+        avg_rt_E: avgE,
+      },
+      rows: records
+    };
+    elDebug.value = JSON.stringify(payload, null, 2);
+
+    // CSV татах товч
+    document.getElementById('btnDownloadCsv').onclick = () => {
+      const csv = toCSV(records);
+      downloadFile(`ie_test_${Date.now()}.csv`, csv, "text/csv");
+    };
+
+    // Имэйл рүү илгээх товч
+    document.getElementById('btnSendEmail').onclick = async () => {
+      const endpoint = document.getElementById('endpoint').value.trim();
+      if (!endpoint) { elStatus.textContent = "⚠️ Endpoint хоосон байна."; return; }
+      elStatus.textContent = "Илгээж байна...";
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        const text = await res.text();
+        elStatus.textContent = res.ok ? "✅ Амжилттай илгээлээ." : `❌ Алдаа: ${text}`;
+      } catch (e) {
+        elStatus.textContent = "❌ Сүлжээний алдаа: " + e.message;
+      }
+    };
+  }
+
+  function average(a) {
+    if (!a.length) return NaN;
+    return a.reduce((x,y)=>x+y,0)/a.length;
+  }
+</script>
+</body>
+</html>
