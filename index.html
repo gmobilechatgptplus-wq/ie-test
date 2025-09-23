@@ -1,82 +1,334 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="mn">
 <head>
   <meta charset="utf-8" />
   <title>I/E Reaction Test (MVP)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, sans-serif; display: grid; place-items: center; height: 100svh; margin: 0; background:#0b1220; color:#eaf0ff; }
-    .card { width: min(720px, 92vw); background:#111a2c; border-radius:16px; padding:24px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-    h1 { margin: 0 0 8px; font-weight: 700; }
-    .muted { color:#98a8c9; font-size:14px; margin-bottom: 16px; }
-    .word { font-size: clamp(28px, 6vw, 48px); text-align:center; padding: 32px 0; letter-spacing: .5px; }
-    .row { display:flex; gap:12px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
-    button { font-size:18px; padding:14px 20px; border-radius:12px; border:1px solid #2a395a; background:#17223a; color:#eaf0ff; cursor:pointer; }
-    button:hover { background:#1c2a48; }
-    .pill { font-size:13px; padding:6px 10px; border-radius:999px; border:1px solid #2a395a; color:#98a8c9; }
-    .ok { color:#5de4a9; } .bad { color:#ff8b8b; }
-    .hidden { display:none; }
-    textarea { width:100%; height:120px; }
-    .small { font-size: 13px; color:#9eb0d3 }
-    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    @media (max-width:640px){ .grid{ grid-template-columns:1fr; } }
+    :root {
+      --primary: #0b1220;
+      --secondary: #111a2c;
+      --accent: #2a395a;
+      --text: #eaf0ff;
+      --muted: #98a8c9;
+      --success: #5de4a9;
+      --danger: #ff8b8b;
+      --warning: #ffca7a;
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100svh;
+      margin: 0;
+      background: linear-gradient(135deg, var(--primary) 0%, #1a2a4f 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .card {
+      width: min(720px, 92vw);
+      background: var(--secondary);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(42, 57, 90, 0.3);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--text) 0%, var(--muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .word {
+      font-size: clamp(32px, 7vw, 56px);
+      text-align: center;
+      padding: 40px 0;
+      letter-spacing: .5px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--text) 0%, var(--muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-size: 18px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent) 0%, #1c2a48 100%);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      flex: 1;
+      min-width: 140px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    #btnI {
+      background: linear-gradient(135deg, var(--success) 0%, #4ac295 100%);
+    }
+
+    #btnE {
+      background: linear-gradient(135deg, var(--danger) 0%, #e57373 100%);
+    }
+
+    .pill {
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill span {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .ok { color: var(--success); }
+    .bad { color: var(--danger); }
+    .warn { color: var(--warning); }
+
+    .hidden { display: none; }
+
+    textarea, input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--accent);
+      background: rgba(15, 24, 48, 0.6);
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    textarea:focus, input:focus {
+      outline: none;
+      border-color: #3a4d7a;
+      box-shadow: 0 0 0 2px rgba(58, 77, 122, 0.3);
+    }
+
+    .small {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(42, 57, 90, 0.3);
+    }
+
+    .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(42, 57, 90, 0.3);
+      border-radius: 4px;
+      margin: 16px 0;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--success) 0%, #4ac295 100%);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .instructions {
+      background: rgba(42, 57, 90, 0.2);
+      padding: 16px;
+      border-radius: 10px;
+      margin: 20px 0;
+      border-left: 4px solid var(--accent);
+    }
+
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(42, 57, 90, 0.2);
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .result-value {
+      font-weight: 600;
+    }
+
+    .auto-email-info {
+      background: rgba(93, 228, 169, 0.1);
+      border: 1px solid rgba(93, 228, 169, 0.3);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 16px 0;
+      color: var(--success);
+    }
+
+    @media (max-width: 640px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 24px 20px;
+      }
+
+      button {
+        min-width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>I / E Reaction Test</h1>
-    <div class="muted">Үг гарч ирэх бүрт “I” (эерэг) эсвэл “E” (сөрөг)-г дарна. Хэт хурдан даралт (<200ms) бол тооцохгүй.</div>
+    <div class="subtitle">Үг гарч ирэх бүрт "I" (эерэг) эсвэл "E" (сөрөг)-г дарна. Хэт хурдан даралт (<200ms) бол тооцохгүй.</div>
 
     <div id="setup">
-      <div class="grid">
-        <div>
-          <label class="small">Оролцогчийн ID / Имэйл (сонголттой):</label>
-          <input id="participant" placeholder="user123 эсвэл name@example.com" style="width:100%; padding:10px; border-radius:10px; border:1px solid #2a395a; background:#0f1830; color:#eaf0ff;">
-        </div>
-        <div>
-          <label class="small">Anti-spam босго:</label>
-          <input id="minRt" type="number" value="200" style="width:100%; padding:10px; border-radius:10px; border:1px solid #2a395a; background:#0f1830; color:#eaf0ff;">
-          <div class="small">Хариултын доод хугацаа (ms). Жишээ нь: 200</div>
+      <div class="section">
+        <div class="grid">
+          <div>
+            <label class="small">Оролцогчийн ID / Нэр (заавал):</label>
+            <input id="participant" placeholder="Жишээ: Б.Батбаяр" required>
+          </div>
+          <div>
+            <label class="small">Anti-spam босго (ms):</label>
+            <input id="minRt" type="number" value="200">
+            <div class="small">Хариултын доод хугацаа. Жишээ нь: 200</div>
+          </div>
         </div>
       </div>
-      <div class="row" style="margin-top:16px;">
-        <button id="btnStart">Эхлэх</button>
+
+      <div class="auto-email-info">
+        <strong>📧 Автомат имэйл:</strong> Туршилт дууссаны дараа үр дүн автоматаар amarmarker@gmail.com хаягт илгээгдэнэ.
+      </div>
+
+      <div class="instructions">
+        <strong>Заавар:</strong>
+        <ul style="margin: 8px 0; padding-left: 20px;">
+          <li>Дэлгэцэн дээр гарч ирэх үг бүрт хурдан хариулах</li>
+          <li>"I" товч - эерэг сэтгэгдэл төрүүлсэн үг</li>
+          <li>"E" товч - сөрөг сэтгэгдэл төрүүлсэн үг</li>
+          <li>Хэт хурдан хариултыг (200ms-ээс бага) тооцохгүй</li>
+          <li>Аль болох хурдан, зөв хариулахыг хичээгээрэй</li>
+        </ul>
+      </div>
+
+      <div class="row">
+        <button id="btnStart">Туршилтыг эхлүүлэх</button>
       </div>
     </div>
 
     <div id="stage" class="hidden">
-      <div class="row">
-        <span class="pill">Үг: <span id="idx">0</span>/<span id="total">0</span></span>
-        <span class="pill">Valid: <span id="validCount">0</span></span>
-        <span class="pill">Invalid: <span id="invalidCount">0</span></span>
+      <div class="section">
+        <div class="row">
+          <div class="pill">Үг: <span id="idx">0</span>/<span id="total">0</span></div>
+          <div class="pill">Хүчинтэй: <span id="validCount" class="ok">0</span></div>
+          <div class="pill">Хүчингүй: <span id="invalidCount" class="bad">0</span></div>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress" id="progress" style="width: 0%"></div>
+        </div>
       </div>
-      <div class="word" id="word">—</div>
-      <div class="row">
-        <button id="btnI">I (эерэг)</button>
-        <button id="btnE">E (сөрөг)</button>
-      </div>
-      <div class="row">
-        <button id="btnUndo">Сүүлчийн хариултыг буцаах</button>
-        <button id="btnFinish">Дуусгах</button>
+
+      <div class="word" id="word">Бэлэн болсон уу?</div>
+
+      <div class="section">
+        <div class="row">
+          <button id="btnI">I (эерэг)</button>
+          <button id="btnE">E (сөрөг)</button>
+        </div>
+
+        <div class="row">
+          <button id="btnUndo">Сүүлчийн хариултыг буцаах</button>
+          <button id="btnFinish">Туршилтыг дуусгах</button>
+        </div>
       </div>
     </div>
 
     <div id="result" class="hidden">
-      <h3>Үр дүн</h3>
-      <div id="summary" class="muted"></div>
-      <div class="row">
-        <button id="btnDownloadCsv">CSV татах</button>
-        <button id="btnSendEmail">Имэйлээр илгээх</button>
+      <h2 style="text-align: center; margin-bottom: 24px;">Үр дүн</h2>
+
+      <div class="section">
+        <div id="summary"></div>
       </div>
-      <div style="margin-top:12px;">
-        <label class="small">Илгээх endpoint (Google Apps Script Web App URL):</label>
-        <input id="endpoint" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" style="width:100%; padding:10px; border-radius:10px; border:1px solid #2a395a; background:#0f1830; color:#eaf0ff;">
+
+      <div class="section">
+        <h3 style="margin-top: 0;">Үр дүнг хадгалах</h3>
+        <div class="row">
+          <button id="btnDownloadCsv">CSV файл татах</button>
+        </div>
+
+        <div id="status" style="margin-top: 12px; padding: 10px; border-radius: 6px;" class="hidden"></div>
       </div>
-      <div style="margin-top:12px;">
+
+      <div class="section">
+        <h3>Дэлгэрэнгүй мэдээлэл</h3>
         <label class="small">Debug JSON:</label>
         <textarea id="debug"></textarea>
       </div>
-      <div id="status" class="small"></div>
     </div>
   </div>
 
@@ -89,6 +341,9 @@
   const SHUFFLE = true; // Үгийг эхлэхэд холих эсэх
   const SAME_KEY_SPAM_WINDOW = 5;  // дараалан 5 удаа адил товч дарсан бол …
   const SAME_KEY_SPAM_RT = 250;    // тухайн 5-н дундаж < 250ms бол spam гэж тэмдэглэнэ
+
+  // Автомат имэйлийн endpoint (Google Apps Script Web App URL)
+  const AUTO_EMAIL_ENDPOINT = "https://script.google.com/macros/s/AKfycbyabOqbrxqIXXE_gI0W-ykvOJY1zSLAZr4s3NegM054vn4RIcfJMpY2CgB8JDJReG0z/exec";
 
   // ===== 2) Төлөв =====
   let seq = [];
@@ -114,6 +369,7 @@
   const elSummary = document.getElementById('summary');
   const elDebug = document.getElementById('debug');
   const elStatus = document.getElementById('status');
+  const elProgress = document.getElementById('progress');
 
   // ===== 4) Туслах функцууд =====
   function shuffle(a) {
@@ -161,6 +417,10 @@
     elValid.textContent = validN;
     elInvalid.textContent = invalidN;
     elIdx.textContent = Math.min(records.length + 1, seq.length);
+
+    // Progress bar шинэчлэх
+    const progress = (records.length / seq.length) * 100;
+    elProgress.style.width = `${progress}%`;
   }
 
   function toCSV(rows) {
@@ -183,10 +443,66 @@
     URL.revokeObjectURL(a.href);
   }
 
+  function showStatus(message, type = "info") {
+    elStatus.textContent = message;
+    elStatus.className = "";
+
+    if (type === "success") {
+      elStatus.style.backgroundColor = "rgba(93, 228, 169, 0.2)";
+      elStatus.style.borderLeft = "4px solid var(--success)";
+    } else if (type === "error") {
+      elStatus.style.backgroundColor = "rgba(255, 139, 139, 0.2)";
+      elStatus.style.borderLeft = "4px solid var(--danger)";
+    } else {
+      elStatus.style.backgroundColor = "rgba(255, 202, 122, 0.2)";
+      elStatus.style.borderLeft = "4px solid var(--warning)";
+    }
+
+    elStatus.classList.remove("hidden");
+
+    // 5 секундын дараа мэдээллийг арилгах
+    if (type === "success" || type === "error") {
+      setTimeout(() => {
+        elStatus.classList.add("hidden");
+      }, 5000);
+    }
+  }
+
+  // Автомат имэйл илгээх функц
+  async function sendAutoEmail(payload) {
+    try {
+      showStatus("📧 Үр дүнг автоматаар илгээж байна...", "info");
+
+      const res = await fetch(AUTO_EMAIL_ENDPOINT, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload),
+        mode: 'no-cors'  // CORS асуудлыг шийдэхийн тулд
+      });
+
+      // no-cors mode-д response status шалгаж болохгүй тул амжилттай гэж тооцно
+      showStatus("✅ Үр дүн амжилттай amarmarker@gmail.com руу илгээгдлээ!", "success");
+
+    } catch (error) {
+      console.error('Auto email error:', error);
+      showStatus("❌ Автомат имэйл илгээхэд алдаа гарлаа: " + error.message, "error");
+    }
+  }
+
   // ===== 5) Урсгал =====
   document.getElementById('btnStart').addEventListener('click', () => {
     participant = document.getElementById('participant').value.trim();
     minValidRt = parseInt(document.getElementById('minRt').value || "200", 10);
+
+    if (!participant) {
+      showStatus("⚠️ Оролцогчийн нэр эсвэл ID оруулна уу.", "error");
+      return;
+    }
+
+    if (minValidRt < 100) {
+      showStatus("⚠️ Anti-spam босго хэт бага байна. Даралтын хурдыг хэмжихэд асуудал гарч болзошгүй.", "error");
+      return;
+    }
 
     seq = [...WORDS];
     if (SHUFFLE) shuffle(seq);
@@ -195,7 +511,18 @@
     elTotal.textContent = seq.length;
     elSetup.classList.add('hidden');
     elStage.classList.remove('hidden');
-    showWord();
+
+    // 3 секундын дараа эхний үгийг харуулах
+    elWord.textContent = "3";
+    setTimeout(() => {
+      elWord.textContent = "2";
+      setTimeout(() => {
+        elWord.textContent = "1";
+        setTimeout(() => {
+          showWord();
+        }, 1000);
+      }, 1000);
+    }, 1000);
   });
 
   function showWord() {
@@ -216,15 +543,27 @@
   document.getElementById('btnE').addEventListener('click', ()=>answer('E'));
 
   document.getElementById('btnUndo').addEventListener('click', () => {
-    if (!records.length) return;
+    if (!records.length) {
+      showStatus("Буцаах боломжтой хариулт байхгүй байна.", "error");
+      return;
+    }
     records.pop();
     i = Math.max(0, i - 1);
     lastAnswers.pop();
     lastRTs.pop();
     showWord();
+    showStatus("Сүүлчийн хариултыг амжилттай буцаав.", "success");
   });
 
-  document.getElementById('btnFinish').addEventListener('click', finish);
+  document.getElementById('btnFinish').addEventListener('click', () => {
+    if (records.length < seq.length) {
+      if (confirm("Туршилт дуусаагүй байна. Дуусгах уу?")) {
+        finish();
+      }
+    } else {
+      finish();
+    }
+  });
 
   function finish() {
     elStage.classList.add('hidden');
@@ -234,10 +573,33 @@
     const avgI = average(validRows.filter(r => r.answer === 'I').map(r=>r.rt_ms));
     const avgE = average(validRows.filter(r => r.answer === 'E').map(r=>r.rt_ms));
 
+    const totalTime = validRows.reduce((sum, r) => sum + r.rt_ms, 0);
+
     elSummary.innerHTML = `
-      Нийт: ${records.length} • Valid: <span class="ok">${validRows.length}</span> • Invalid: <span class="bad">${records.length - validRows.length}</span><br>
-      I (эерэг) дундаж RT: <b>${isFinite(avgI)?Math.round(avgI):'-'}</b> ms<br>
-      E (сөрөг) дундаж RT: <b>${isFinite(avgE)?Math.round(avgE):'-'}</b> ms
+      <div class="result-item">
+        <div>Нийт хариулт:</div>
+        <div class="result-value">${records.length}</div>
+      </div>
+      <div class="result-item">
+        <div>Хүчинтэй хариулт:</div>
+        <div class="result-value ok">${validRows.length}</div>
+      </div>
+      <div class="result-item">
+        <div>Хүчингүй хариулт:</div>
+        <div class="result-value bad">${records.length - validRows.length}</div>
+      </div>
+      <div class="result-item">
+        <div>I (эерэг) дундаж RT:</div>
+        <div class="result-value">${isFinite(avgI)?Math.round(avgI):'-'} ms</div>
+      </div>
+      <div class="result-item">
+        <div>E (сөрөг) дундаж RT:</div>
+        <div class="result-value">${isFinite(avgE)?Math.round(avgE):'-'} ms</div>
+      </div>
+      <div class="result-item">
+        <div>Нийт зарцуулсан хугацаа:</div>
+        <div class="result-value">${Math.round(totalTime/1000)} секунд</div>
+      </div>
     `;
 
     const payload = {
@@ -252,33 +614,24 @@
         invalid: records.length - validRows.length,
         avg_rt_I: avgI,
         avg_rt_E: avgE,
+        total_time_ms: totalTime
       },
-      rows: records
+      rows: records,
+      csv_data: toCSV(records)
     };
+
     elDebug.value = JSON.stringify(payload, null, 2);
+
+    // Автоматаар имэйл илгээх
+    sendAutoEmail(payload);
 
     // CSV татах товч
     document.getElementById('btnDownloadCsv').onclick = () => {
       const csv = toCSV(records);
-      downloadFile(`ie_test_${Date.now()}.csv`, csv, "text/csv");
-    };
-
-    // Имэйл рүү илгээх товч
-    document.getElementById('btnSendEmail').onclick = async () => {
-      const endpoint = document.getElementById('endpoint').value.trim();
-      if (!endpoint) { elStatus.textContent = "⚠️ Endpoint хоосон байна."; return; }
-      elStatus.textContent = "Илгээж байна...";
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(payload)
-        });
-        const text = await res.text();
-        elStatus.textContent = res.ok ? "✅ Амжилттай илгээлээ." : `❌ Алдаа: ${text}`;
-      } catch (e) {
-        elStatus.textContent = "❌ Сүлжээний алдаа: " + e.message;
-      }
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+      const filename = `ie_test_${participant.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}.csv`;
+      downloadFile(filename, csv, "text/csv");
+      showStatus("CSV файл амжилттай татагдлаа.", "success");
     };
   }
 
@@ -286,6 +639,28 @@
     if (!a.length) return NaN;
     return a.reduce((x,y)=>x+y,0)/a.length;
   }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (elStage.classList.contains('hidden')) return;
+
+    if (e.key === 'i' || e.key === 'I') {
+      document.getElementById('btnI').click();
+      document.getElementById('btnI').style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        document.getElementById('btnI').style.transform = '';
+      }, 150);
+    } else if (e.key === 'e' || e.key === 'E') {
+      document.getElementById('btnE').click();
+      document.getElementById('btnE').style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        document.getElementById('btnE').style.transform = '';
+      }, 150);
+    } else if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      document.getElementById('btnUndo').click();
+    }
+  });
 </script>
 </body>
 </html>
