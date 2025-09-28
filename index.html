@@ -1,965 +1,445 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="mn">
 <head>
-  <meta charset="utf-8" />
-  <title>I/E Reaction Test - 3 Phase</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --primary: #0b1220;
-      --secondary: #111a2c;
-      --accent: #2a395a;
-      --text: #eaf0ff;
-      --muted: #98a8c9;
-      --success: #5de4a9;
-      --danger: #ff8b8b;
-      --warning: #ffca7a;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IAT Words — 7 Parts</title>
+<style>
+  body { font-family:"Times New Roman",serif; background:#f7fbfd; margin:0; }
+  .frame { border:6px solid #bfe3f1; background:#fff; padding:24px 30px; width:900px; max-width:94vw; margin:36px auto; }
+  .top { display:grid; grid-template-columns:1fr auto 1fr; }
+  .hint { font-size:13px; color:#333; text-align:center; }
+  .left,.right { font-size:32px; font-weight:700; color:#2f9b30; margin-top:6px; }
+  .left { text-align:left } .right { text-align:right }
+  .part { text-align:center; margin:18px 0; font-weight:700; }
+  .instructions { font-size:16px; line-height:1.55; color:#111; }
+  .instructions .category{ color:#2f9b30; font-weight:700 }
+  .instructions .redx{ color:#c62828; font-weight:800 }
+  .start { text-align:center; margin-top:22px; font-size:18px; font-weight:700 }
+  .btn{ display:inline-block; padding:10px 16px; border:1px solid #b3b3b3; border-radius:4px; background:#f6f6f6; cursor:pointer; font-weight:700 }
+  .btn:active{ transform:translateY(1px) }
+  .hidden { display:none }
+  .stimulus { text-align:center; font-size:46px; font-weight:700; margin:56px 0 12px }
+  .bigx{ color:#c62828; font-weight:800; font-size:42px; text-align:center; margin-top:6px; }
+  .form-row{ display:grid; grid-template-columns:180px 1fr; align-items:center; gap:10px; margin:10px 0; }
+  label{ font-weight:700 }
+  input, select{ font-family:inherit; font-size:16px; padding:8px 10px; border:1px solid #b3b3b3; border-radius:4px }
+  .note{ font-size:14px; color:#444 }
+  .err{ color:#c62828; font-size:14px; margin-top:8px }
 
-    * {
-      box-sizing: border-box;
-      transition: all 0.2s ease;
-    }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100svh;
-      margin: 0;
-      background: linear-gradient(135deg, var(--primary) 0%, #1a2a4f 100%);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    .card {
-      width: min(720px, 92vw);
-      background: var(--secondary);
-      border-radius: 20px;
-      padding: 32px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(42, 57, 90, 0.3);
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-weight: 700;
-      background: linear-gradient(90deg, var(--text) 0%, var(--muted) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-align: center;
-    }
-
-    h2, h3 {
-      color: var(--text);
-      text-align: center;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 16px;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    .phase-title {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--success);
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .stimulus-area {
-      min-height: 300px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 0;
-      gap: 20px;
-    }
-
-    .word {
-      font-size: clamp(32px, 7vw, 56px);
-      text-align: center;
-      letter-spacing: .5px;
-      font-weight: 700;
-      background: linear-gradient(90deg, var(--text) 0%, var(--muted) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .image {
-      max-width: 200px;
-      max-height: 200px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      object-fit: cover;
-    }
-
-    .row {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      font-size: 18px;
-      padding: 16px 24px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, var(--accent) 0%, #1c2a48 100%);
-      color: var(--text);
-      cursor: pointer;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      flex: 1;
-      min-width: 140px;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    #btnI {
-      background: linear-gradient(135deg, var(--success) 0%, #4ac295 100%);
-    }
-
-    #btnE {
-      background: linear-gradient(135deg, var(--danger) 0%, #e57373 100%);
-    }
-
-    .pill {
-      font-size: 14px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pill span {
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .ok { color: var(--success); }
-    .bad { color: var(--danger); }
-    .warn { color: var(--warning); }
-
-    .hidden { display: none; }
-
-    textarea, input, select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--accent);
-      background: rgba(15, 24, 48, 0.6);
-      color: var(--text);
-      font-size: 16px;
-    }
-
-    textarea:focus, input:focus, select:focus {
-      outline: none;
-      border-color: #3a4d7a;
-      box-shadow: 0 0 0 2px rgba(58, 77, 122, 0.3);
-    }
-
-    .small {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .section {
-      margin-bottom: 24px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid rgba(42, 57, 90, 0.3);
-    }
-
-    .section:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .progress-bar {
-      height: 8px;
-      background: rgba(42, 57, 90, 0.3);
-      border-radius: 4px;
-      margin: 16px 0;
-      overflow: hidden;
-    }
-
-    .progress {
-      height: 100%;
-      background: linear-gradient(90deg, var(--success) 0%, #4ac295 100%);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .instructions {
-      background: rgba(42, 57, 90, 0.2);
-      padding: 16px;
-      border-radius: 10px;
-      margin: 20px 0;
-      border-left: 4px solid var(--accent);
-    }
-
-    .result-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(42, 57, 90, 0.2);
-    }
-
-    .result-item:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .result-value {
-      font-weight: 600;
-    }
-
-    .auto-email-info {
-      background: rgba(93, 228, 169, 0.1);
-      border: 1px solid rgba(93, 228, 169, 0.3);
-      border-radius: 10px;
-      padding: 16px;
-      margin: 16px 0;
-      color: var(--success);
-    }
-
-    .question-group {
-      background: rgba(42, 57, 90, 0.1);
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      border-left: 4px solid var(--accent);
-    }
-
-    .likert-scale {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 12px 0;
-      gap: 8px;
-    }
-
-    .likert-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      min-width: 60px;
-    }
-
-    .likert-option input[type="radio"] {
-      width: 20px;
-      height: 20px;
-      margin: 0;
-    }
-
-    .likert-label {
-      font-size: 12px;
-      text-align: center;
-      color: var(--muted);
-    }
-
-    .required {
-      color: var(--danger);
-    }
-
-    .phase-break {
-      background: rgba(93, 228, 169, 0.1);
-      border: 2px solid var(--success);
-      border-radius: 15px;
-      padding: 24px;
-      text-align: center;
-      margin: 20px 0;
-    }
-
-    .phase-break h3 {
-      color: var(--success);
-      margin: 0 0 16px 0;
-    }
-
-    @media (max-width: 640px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .card {
-        padding: 24px 20px;
-      }
-
-      button {
-        min-width: 100%;
-      }
-
-      .likert-scale {
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .likert-option {
-        flex-direction: row;
-        min-width: auto;
-        width: 100%;
-        justify-content: space-between;
-        padding: 8px;
-        background: rgba(42, 57, 90, 0.2);
-        border-radius: 8px;
-      }
-
-      .stimulus-area {
-        min-height: 250px;
-        padding: 30px 0;
-      }
-
-      .image {
-        max-width: 150px;
-        max-height: 150px;
-      }
-    }
-  </style>
+  /* Completion UI */
+  .results-box { border:6px solid #bfe3f1; background:#fff; padding:20px 24px; width:900px; max-width:94vw; margin:24px auto; }
+  .results-title { font-size:18px; font-weight:700; margin-bottom:8px; }
+  .results-role { margin:8px 0; padding:10px; border-radius:8px; background:#f3f7fb; }
+  .results-actions { margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-primary { background:#2b6df6; color:#fff; border-color:#2b6df6; }
+  .btn-success { background:#2fb56e; color:#fff; border-color:#2fb56e; }
+  .btn-warning { background:#f0ad4e; color:#fff; border-color:#f0ad4e; }
+  .small-note { margin-top:10px; color:#6b7280; font-size:13px; }
+  pre.results-preview { white-space:pre-wrap; background:#0b1220; color:#eaf0ff; padding:10px; border-radius:6px; margin-top:12px; overflow:auto; max-height:240px; }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>I / E Reaction Test - 3 хэсэг</h1>
-    <div class="subtitle">3 өөр хэлбэрийн тестээр дамжин эерэг/сөрөг хариу өгнө үү.</div>
 
-    <!-- Setup -->
-    <div id="setup">
-      <div class="section">
-        <div>
-          <label class="small">Оролцогчийн ID / Нэр <span class="required">*</span>:</label>
-          <input id="participant" placeholder="Жишээ: Б.Батбаяр" required>
-        </div>
-        <!-- Anti-spam босго далдлагдсан, гэхдээ ажиллаж байна -->
-        <input id="minRt" type="hidden" value="200">
-      </div>
-
-      <div class="question-group">
-        <label class="small">Таны одоогийн сэтгэл санааны төлөв хэрхэн байна?</label>
-        <div class="likert-scale">
-          <div class="likert-option">
-            <input type="radio" name="mood" value="1" id="mood1">
-            <label for="mood1" class="likert-label">Маш муу</label>
-          </div>
-          <div class="likert-option">
-            <input type="radio" name="mood" value="2" id="mood2">
-            <label for="mood2" class="likert-label">Муу</label>
-          </div>
-          <div class="likert-option">
-            <input type="radio" name="mood" value="3" id="mood3">
-            <label for="mood3" class="likert-label">Дунд зэрэг</label>
-          </div>
-          <div class="likert-option">
-            <input type="radio" name="mood" value="4" id="mood4">
-            <label for="mood4" class="likert-label">Сайн</label>
-          </div>
-          <div class="likert-option">
-            <input type="radio" name="mood" value="5" id="mood5">
-            <label for="mood5" class="likert-label">Маш сайн</label>
-          </div>
-        </div>
-      </div>
-
-
-
-      <div class="instructions">
-        <strong>Заавар:</strong>
-        <ul style="margin: 8px 0; padding-left: 20px;">
-          <li><strong>1-р хэсэг:</strong> Үг харж "I" (эерэг) эсвэл "E" (сөрөг) дарна</li>
-          <li><strong>2-р хэсэг:</strong> Зураг харж "I" (эерэг) эсвэл "E" (сөрөг) дарна</li>
-          <li><strong>3-р хэсэг:</strong> Зураг + үг хослол харж "I" (эерэг) эсвэл "E" (сөрөг) дарна</li>
-          <li>Хэт хурдан хариултыг (200ms-ээс бага) тооцохгүй</li>
-          <li>Аль болох хурдан, зөв хариулахыг хичээгээрэй</li>
-        </ul>
-      </div>
-
-      <div class="row">
-        <button id="btnStart">Туршилтыг эхлүүлэх</button>
-      </div>
-    </div>
-
-    <!-- Test Stage -->
-    <div id="stage" class="hidden">
-      <div class="phase-title" id="phaseTitle">1-р хэсэг: Үг</div>
-      
-      <div class="section">
-        <div class="row">
-          <div class="pill">Хэсэг: <span id="currentPhase">1</span>/3</div>
-          <div class="pill">Үг: <span id="idx">0</span>/<span id="total">0</span></div>
-          <div class="pill">Хүчинтэй: <span id="validCount" class="ok">0</span></div>
-          <div class="pill">Хүчингүй: <span id="invalidCount" class="bad">0</span></div>
-        </div>
-
-        <div class="progress-bar">
-          <div class="progress" id="progress" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <div class="stimulus-area" id="stimulusArea">
-        <div class="word" id="word">Бэлэн болсон уу?</div>
-        <img id="image" class="image hidden" src="" alt="">
-      </div>
-
-      <div class="section">
-        <div class="row">
-          <button id="btnI">I (эерэг)</button>
-          <button id="btnE">E (сөрөг)</button>
-        </div>
-
-        <div class="row">
-          <button id="btnUndo">Сүүлчийн хариултыг буцаах</button>
-          <button id="btnFinish">Туршилтыг дуусгах</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase Break -->
-    <div id="phaseBreak" class="hidden">
-      <div class="phase-break">
-        <h3 id="breakTitle">1-р хэсэг дууслаа!</h3>
-        <p id="breakMessage">2-р хэсэгт зураг харж хариулна.</p>
-        <button id="btnNextPhase">Дараагийн хэсэг рүү</button>
-      </div>
-    </div>
-
-    <!-- Results -->
-    <div id="result" class="hidden">
-      <h2 style="text-align: center; margin-bottom: 24px;">Үр дүн</h2>
-
-      <div class="section">
-        <div id="summary"></div>
-      </div>
-
-      <div class="section">
-        <h3 style="margin-top: 0;">Үр дүнг хадгалах</h3>
-        <div class="row">
-          <button id="btnDownloadCsv">CSV файл татах</button>
-        </div>
-
-        <div id="status" style="margin-top: 12px; padding: 10px; border-radius: 6px;" class="hidden"></div>
-      </div>
-
-      <div class="section">
-        <h3>Дэлгэрэнгүй мэдээлэл</h3>
-        <label class="small">Debug JSON:</label>
-        <textarea id="debug"></textarea>
-      </div>
-    </div>
+<!-- ===== 1) SETUP ===== -->
+<div class="frame" id="setup">
+  <div class="part">Оролцогчийн мэдээлэл</div>
+  <div class="form-row">
+    <label for="pid">ID / Нэр<span style="color:#c62828">*</span></label>
+    <input id="pid" placeholder="Жишээ: B.Batbayar" />
   </div>
+  <div class="form-row">
+    <label for="age">Нас<span style="color:#c62828">*</span></label>
+    <input id="age" type="number" min="5" max="120" placeholder="Жишээ: 23" />
+  </div>
+  <div class="form-row">
+    <label for="gender">Хүйс</label>
+    <select id="gender">
+      <option value="">Сонгох</option>
+      <option value="male">Эр</option>
+      <option value="female">Эм</option>
+      <option value="other">Бусад</option>
+    </select>
+  </div>
+  <div class="note">Enter дарж эсвэл доорх товчийг дарж үргэлжлүүлнэ.</div>
+  <div style="text-align:center; margin-top:14px">
+    <button class="btn" type="button" onclick="window.goIntro()">Зааварт шилжих</button>
+  </div>
+  <div class="err hidden" id="setupErr"></div>
+</div>
+
+<!-- ===== 2) INSTRUCTIONS ===== -->
+<div class="frame hidden" id="intro">
+  <div class="top">
+    <div class="hint">Press "E" for</div><div></div><div class="hint">Press "I" for</div>
+    <div class="left" id="leftCategory">Би</div><div></div><div class="right" id="rightCategory">Тэд</div>
+  </div>
+  <div class="part" id="introPartLabel">Part 1 of 7</div>
+  <div class="instructions" id="instructionsText">
+    <p>Зүүн гарын дунд эсвэл долоовор хурууг компьютерийн гарны E товчлуур, баруун гарын дунд эсвэл долоовор хурууг компьютерийн гарны I товчлуур дээр тус тус байрлуул. ... Та зааврыг ойлгосон бол "ЗАЙ АВАХ ТОВЧЛУУР" дарж туршилтыг эхэлнэ.</p>
+  </div>
+  <div class="start">Press the <b>space bar</b> when you are ready to start.</div>
+  <div style="text-align:center; margin-top:12px">
+    <button class="btn" id="btnStart">Эхлэх</button>
+  </div>
+</div>
+
+<!-- ===== 3) STAGE ===== -->
+<div class="frame hidden" id="stage">
+  <div class="top">
+    <div class="hint">Press "E" for</div><div></div><div class="hint">Press "I" for</div>
+    <div class="left" id="stageLeftCategory">Би</div><div></div><div class="right" id="stageRightCategory">Тэд</div>
+  </div>
+  <div class="part" id="partLabel">Part 1 of 7</div>
+  <div class="stimulus" id="stimulusWord">Smile</div>
+  <div id="errorX" class="bigx hidden">X</div>
+</div>
+
+<!-- ===== 4) COMPLETION (mount) ===== -->
+<div id="completionMount"></div>
 
 <script>
-  // ===== 1) Тохиргоо =====
-  const WORDS = [
-    "Happy","Sad","Love","Anger","Peace","Hate","Proud","Shame","Smile","Fear",
-    "Joy","Pain","Friend","Enemy","Warm","Cold"
-  ];
+/* ========== Constants & Data ========== */
+const TOTAL_PARTS = 7;
 
-  // Зургийн URLs (placeholder images - та өөрчилж болно)
-  const IMAGES = [
-    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop", // happy
-    "https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=200&h=200&fit=crop", // sad
-    "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=200&h=200&fit=crop", // love
-    "https://images.unsplash.com/photo-1621252179027-94459d278660?w=200&h=200&fit=crop", // anger
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop", // peace
-    "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop", // hate
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop", // proud
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop", // shame
-    "https://images.unsplash.com/photo-1464207687429-7505649dae38?w=200&h=200&fit=crop", // smile
-    "https://images.unsplash.com/photo-1614850523060-8da21d432f29?w=200&h=200&fit=crop", // fear
-    "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=200&h=200&fit=crop", // joy
-    "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop", // pain
-    "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=200&h=200&fit=crop", // friend
-    "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop", // enemy
-    "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=200&h=200&fit=crop", // warm
-    "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=200&h=200&fit=crop"  // cold
-  ];
+const SELF_WORDS = ["Би", "надад", "миний", "минийх", "өөрөө"];
+const OTHER_WORDS = ["тэднийг", "тэдний", "тэднийх", "тэдэнд", "тэд"];
+const POS_WORDS = ["гайхамшигтай", "үзэсгэлэнтэй", "сайхан", "сайн", "жаргалтай"];
+const NEG_WORDS = ["Шоовдор", "зовлонтой", "харгис", "аймаар", "ядаргаатай"];
 
-  const PHASES = [
-    { name: "1-р хэсэг: Үг", type: "word" },
-    { name: "2-р хэсэг: Зураг", type: "image" },
-    { name: "3-р хэсэг: Үг + Зураг", type: "both" }
-  ];
+// Instructions for each part
+const PART_INSTRUCTIONS = [
+  // Part 1: Self vs Others
+  "Зүүн гарын дунд эсвэл долоовор хурууг компьютерийн гарны E товчлуур, баруун гарын дунд эсвэл долоовор хурууг компьютерийн гарны I товчлуур дээр тус тус байрлуул. Дэлгэцийн зүүн дээд талд \"Би\", баруун дээд талд \"Тэд\" гэсэн 2 ангилал өгөгдөнө. Дэлгэцийн дээд талд өгөгдсөн хоёр ангилалд хамаарах үгнүүд дэлгэцийн голд нэг нэгээрээ гарч ирнэ. Зүүн талын \"Би\" ангилалд хамаарах үг гарч ирвэл E товчлуурыг; харин баруун талын \"Тэд\" ангилалд хамаарах үг гарч ирвэл I товчлуурыг дар. Үг бүр зөвхөн эдгээрийн аль нэг ангилалд хамаарна. Хэрэв Та алдаа гаргавал дэлгэцийн голд \"Х\" гарч ирнэ. Хэрэв Та алдаа гаргавал зөв товчлуурыг дар. Энэхүү даалгавар нь гүйцэтгэсэн хугацаагаар хэмжигддэг тул \"ЧАДАХ ЧИНЭЭГЭЭРЭЭ ХУРДАН\" мөн аль болох \"АЛДААГҮЙ ГҮЙЦЭТГЭ\". Хэрэв Та хэтэрхий удаан ажиллаж, олон алдаа гаргавал үр дүнг тооцох боломжгүй болно. Даалгаврыг хийж гүйцэтгэхэд ойролцоогоор 5 минут шаардагдана. Танд амжилт хүсье. Та зааврыг ойлгосон бол \"ЗАЙ АВАХ ТОВЧЛУУР\" дарж туршилтыг эхэлнэ.",
 
-  const SHUFFLE = true;
-  const SAME_KEY_SPAM_WINDOW = 5;
-  const SAME_KEY_SPAM_RT = 250;
+  // Part 2: Positive vs Negative
+  "Дэлгэцийн дээд талын өмнөх ангилалууд өөрчлөгдөж дэлгэцийн зүүн дээд талд \"Сайн\", баруун дээд талд \"Муу\" гэсэн 2 ангилал өгөгдсөн байна. Мөн 2 ангилалд хамаарах үгс ч өөрчлөгдсөн. Гэхдээ даалгаврын дүрэм хэвээрээ. Зүүн талын \"Сайн\" ангилалд хамаарах үг гарч ирвэл E товчлуурыг; харин баруун талын \"Муу\" ангилалд хамаарах үг гарч ирвэл I товчлуурыг дар. Үг бүр зөвхөн эдгээрийн аль нэг ангилалд хамаарна. Хэрэв Та алдаа гаргавал дэлгэцийн голд \"Х\" гарч ирнэ. Хэрэв Та алдаа гаргавал зөв товчлуурыг дар. Даалгаврыг \"ЧАДАХ ЧИНЭЭГЭЭРЭЭ ХУРДАН ГҮЙЦЭТГЭ\". Та зааврыг ойлгосон бол \"ЗАЙ АВАХ ТОВЧЛУУР\" дарж туршилтыг эхэлнэ.",
 
-  const AUTO_EMAIL_ENDPOINT = "https://script.google.com/macros/s/AKfycbyabOqbrxqIXXE_gI0W-ykvOJY1zSLAZr4s3NegM054vn4RIcfJMpY2CgB8JDJReG0z/exec";
+  // Part 3: Self+Positive vs Others+Negative
+  "Дэлгэцийн дээд талд өмнө нь тус тусдаа байсан дөрвөн ангилал одоо нийлж, дэлгэцийн зүүн дээд талд \"Би эсвэл Сайн\", \"Бусад эсвэл Муу\" гэсэн бүлэг болон харагдаж байна. Дэлгэцийн голд гарах үг бүр зөвхөн нэг л бүлэгт хамаарна гэдгийг сана. Тухайлбал, хэрэв Би ба Сайн ангиллууд тус тусдаа байсан бол \"Би\"-д хамаарах утгатай үгс \"Сайн\" ангилалд хамаарахгүй байсан бол одоо энэ хоёр ангилал хамтдаа яригдах болно. Дэлгэцийн дээд талд байгаа ногоон ба цагаан ангиллууд болон дэлгэцийн голд гарах үгс тохирох ангилалаа ялгаж танихад тусална. Зүүн, баруун талд байгаа дөрвөн бүлэгт үгнүүдийг ангилахдаа E ба I товчлуурыг ашигла, зөв товчлуурыг дарж алдаагаа зас. Та зааврыг ойлгосон бол \"ЗАЙ АВАХ ТОВЧЛУУР\" дарж туршилтыг эхэлнэ.",
 
-  // ===== 2) Төлөв =====
-  let currentPhase = 0;
-  let seq = [];
-  let imageSeq = [];
-  let i = 0;
-  let startTime = 0;
-  let records = [];
-  let minValidRt = 200;
-  let participantData = {};
+  // Part 4: Repeat Self+Positive vs Others+Negative
+  "Үгсийг дахин дөрвөн ангилалд хамааруул. Чадах чинээгээрээ хурдан, аль болох алдаагүй гүйцэтгэх ёстойгоо санаарай. Дэлгэцийн дээд талд байгаа ногоон, цагаан ангиллууд болон дэлгэцийн голд гарах үгс тохирох ангилалаа ялган танихад тусална. Зүүн, баруун талд байгаа дөрвөн бүлэгт үгсийг ангилахдаа E ба I товчлуурыг ашигла, хэрэв та алдаа гаргавал зөв товчлуурыг дарж алдаагаа зас. Та зааврыг ойлгосон бол \"ЗАЙ АВАХ ТОВЧЛУУР\" дарж туршилтыг эхэлнэ.",
 
-  let lastAnswers = [];
-  let lastRTs = [];
+  // Part 5: Others vs Self (reversed)
+  "Дэлгэцийн дээд талыг анхаар, зөвхөн хоёр ангилал харагдаж байна, мөн ангилалуудын өмнөх байр нь солигдсон байна. Дэлгэцийн зүүн дээд талд байсан \"Би\" ангилал баруун талд, баруун дээд талд байсан \"Тэд\" ангилал зүүн талд байрласан байна. Энэхүү байр нь солигдсон ангилалтай ажилла. Үгсийг баруун, зүүн тал руу ангилахдаа E ба I товчлуурыг ашигла. Хэрэв та алдаа гаргавал зөв товчлуурыг дарж алдаагаа зас. Та зааврыг ойлгосон бол \"ЗАЙ АВАХ ТОВЧЛУУР\" дарж туршилтыг эхэлнэ.",
 
-  // ===== 3) Элементийн холбоос =====
-  const elSetup = document.getElementById('setup');
-  const elStage = document.getElementById('stage');
-  const elPhaseBreak = document.getElementById('phaseBreak');
-  const elResult = document.getElementById('result');
-  const elWord = document.getElementById('word');
-  const elImage = document.getElementById('image');
-  const elIdx = document.getElementById('idx');
-  const elTotal = document.getElementById('total');
-  const elValid = document.getElementById('validCount');
-  const elInvalid = document.getElementById('invalidCount');
-  const elSummary = document.getElementById('summary');
-  const elDebug = document.getElementById('debug');
-  const elStatus = document.getElementById('status');
-  const elProgress = document.getElementById('progress');
-  const elPhaseTitle = document.getElementById('phaseTitle');
-  const elCurrentPhase = document.getElementById('currentPhase');
+  // Part 6: Others+Positive vs Self+Negative
+  "Дэлгэцийн дээд тал руу хар, одоо дөрвөн ангилал хоёр хоёроороо нийлж харагдаж байна. Ялгах үг бүр зөвхөн нэг л ангилалд хамаарна гэдгийг санаарай. Дэлгэцийн дээд талд байгаа ногоон, цагаан ангиллууд болон дэлгэцийн голд гарах үгс тохирох ангиллаа ялган танихад тусална. Зүүн, баруун талд байгаа дөрвөн бүлэгт үгсийг ангилахдаа E ба I товчлуурыг ашигла, хэрэв та алдаа гаргавал зөв товчлуурыг дарж алдаагаа зас. Та зааврыг ойлгосон бол \"ЗАЙ АВАХ ТОВЧЛУУР\" дарж туршилтыг эхэлнэ.",
 
-  // ===== 4) Туслах функцууд =====
-  function shuffle(a) {
-    for (let j = a.length - 1; j > 0; j--) {
-      const k = Math.floor(Math.random() * (j + 1));
-      [a[j], a[k]] = [a[k], a[j]];
-    }
-    return a;
+  // Part 7: Repeat Others+Positive vs Self+Negative
+  "Үгсийг дахин дөрвөн ангилалд ялга. Чадах чинээгээрээ хурдан, аль болох алдаагүй гүйцэтгэх ёстойгоо санаарай. Дэлгэцийн дээд талд байгаа ногоон, цагаан нэр ангилалууд болон дэлгэцийн голд гарах үгс тохирох ангилалаа ялган танихад тусална. Зүүн, баруун талд байгаа дөрвөн бүлэгт үгсийг ангилахдаа E ба I товчлуурыг ашигла, хэрэв та алдаа гаргавал зөв товчлуурыг дарж алдаагаа зас. Та зааврыг ойлгосон бол \"ЗАЙ АВАХ ТОВЧЛУУР\" дарж туршилтыг эхэлнэ. Эхлэе"
+];
+
+const PART_CONFIG = [
+  { words: createWordList(SELF_WORDS, 10, OTHER_WORDS, 10), leftCat: "Би", rightCat: "Тэд", leftWords: SELF_WORDS },
+  { words: createWordList(POS_WORDS, 10, NEG_WORDS, 10), leftCat: "Сайн", rightCat: "Муу", leftWords: POS_WORDS },
+  { words: createWordList(SELF_WORDS, 5, OTHER_WORDS, 5, POS_WORDS, 5, NEG_WORDS, 5), leftCat: "Би эсвэл Сайн", rightCat: "Тэд эсвэл Муу", leftWords: SELF_WORDS.concat(POS_WORDS) },
+  { words: createWordList(SELF_WORDS, 10, OTHER_WORDS, 10, POS_WORDS, 10, NEG_WORDS, 10), leftCat: "Би эсвэл Сайн", rightCat: "Тэд эсвэл Муу", leftWords: SELF_WORDS.concat(POS_WORDS) },
+  { words: createWordList(SELF_WORDS, 10, OTHER_WORDS, 10), leftCat: "Тэд", rightCat: "Би", leftWords: OTHER_WORDS },
+  { words: createWordList(SELF_WORDS, 5, OTHER_WORDS, 5, POS_WORDS, 5, NEG_WORDS, 5), leftCat: "Тэд эсвэл Сайн", rightCat: "Би эсвэл Муу", leftWords: OTHER_WORDS.concat(POS_WORDS) },
+  { words: createWordList(SELF_WORDS, 10, OTHER_WORDS, 10, POS_WORDS, 10, NEG_WORDS, 10), leftCat: "Тэд эсвэл Сайн", rightCat: "Би эсвэл Муу", leftWords: OTHER_WORDS.concat(POS_WORDS) }
+];
+
+/* ========== State ========== */
+const setup = document.getElementById('setup');
+const intro = document.getElementById('intro');
+const stage = document.getElementById('stage');
+const errEl = document.getElementById('setupErr');
+const pidEl = document.getElementById('pid');
+const ageEl = document.getElementById('age');
+const genderEl = document.getElementById('gender');
+const completionMount = document.getElementById('completionMount');
+
+const participant = { id:"", age:null, gender:"" };
+
+let currentPart = 0;
+let i = 0;
+let SEQ = [];
+let needCorrection = false;
+let expectedKey = null;
+let _trialStart = 0;
+
+let testStartedAt = null;
+let testFinishedAt = null;
+
+let records = [];
+let trialIndex = 0;
+
+/* ========== Helpers ========== */
+function shuffle(a){
+  const arr = a.slice();
+  for(let j=arr.length-1;j>0;j--){
+    const k=Math.floor(Math.random()*(j+1));
+    [arr[j],arr[k]]=[arr[k],arr[j]];
   }
+  return arr;
+}
 
-  function nowTs() {
-    return new Date().toISOString();
+function createWordList(...args) {
+  let result = [];
+  for(let i = 0; i < args.length; i += 2) {
+    const wordArray = args[i];
+    const count = args[i + 1];
+    const repetitions = Math.ceil(count / wordArray.length);
+    for(let rep = 0; rep < repetitions; rep++) result = result.concat(wordArray);
   }
+  return result;
+}
 
-  function getFormData(formId) {
-    const data = {};
-    const form = document.getElementById(formId) || document;
-    
-    form.querySelectorAll('input, select, textarea').forEach(el => {
-      if (el.type === 'radio') {
-        if (el.checked) data[el.name] = el.value;
-      } else if (el.id && el.value !== '') {
-        data[el.id] = el.value;
-      }
-    });
-    
-    return data;
+function showErr(msg){ errEl.textContent = msg; errEl.classList.remove('hidden'); }
+function hideErr(){ errEl.classList.add('hidden'); }
+
+/* ========== Flow ========== */
+window.goIntro = function(){
+  const id = (pidEl.value||"").trim();
+  const age = parseInt(ageEl.value,10);
+  if(!id){ showErr('ID / Нэр заавал оруулна.'); return; }
+  if(!Number.isFinite(age) || age<5 || age>120){ showErr('Насыг 5–120 хооронд оруулна уу.'); return; }
+  participant.id=id; participant.age=age; participant.gender=(genderEl.value||'');
+  hideErr();
+  setup.classList.add('hidden');
+  startStage();
+};
+
+function startStage(){
+  if(!testStartedAt) testStartedAt = new Date().toISOString();
+  currentPart = 0;
+  showIntroForPart();
+}
+
+function showIntroForPart(){
+  intro.classList.remove('hidden');
+  stage.classList.add('hidden');
+  const config = PART_CONFIG[currentPart];
+  document.getElementById('introPartLabel').textContent = `Part ${currentPart+1} of ${TOTAL_PARTS}`;
+  document.getElementById('leftCategory').textContent = config.leftCat;
+  document.getElementById('rightCategory').textContent = config.rightCat;
+  document.getElementById('instructionsText').innerHTML = `<p>${PART_INSTRUCTIONS[currentPart]}</p>`;
+}
+
+function startPart(){
+  intro.classList.add('hidden');
+  stage.classList.remove('hidden');
+  const config = PART_CONFIG[currentPart];
+  document.getElementById('partLabel').textContent = `Part ${currentPart+1} of ${TOTAL_PARTS}`;
+  document.getElementById('stageLeftCategory').textContent = config.leftCat;
+  document.getElementById('stageRightCategory').textContent = config.rightCat;
+  SEQ = shuffle(config.words);
+  i = 0;
+  needCorrection = false;
+  showWord();
+}
+
+function endPhase(){
+  if(currentPart < TOTAL_PARTS-1){
+    currentPart++;
+    showIntroForPart();
+  }else{
+    testFinishedAt = new Date().toISOString();
+    document.getElementById('stimulusWord').textContent = 'All 7 parts done!';
+    document.getElementById('errorX').classList.add('hidden');
+    finalizeResults(); // === HERE ===
   }
+}
 
-  function pushAnswer(answer, rt) {
-    lastAnswers.push(answer);
-    lastRTs.push(rt);
-    if (lastAnswers.length > SAME_KEY_SPAM_WINDOW) {
-      lastAnswers.shift(); lastRTs.shift();
-    }
-    let spamSeries = false;
-    if (lastAnswers.length === SAME_KEY_SPAM_WINDOW) {
-      const allSame = lastAnswers.every(v => v === lastAnswers[0]);
-      const avgRt = lastRTs.reduce((a,b)=>a+b,0)/lastRTs.length;
-      if (allSame && avgRt < SAME_KEY_SPAM_RT) spamSeries = true;
-    }
-    const invalid = (rt < minValidRt) || spamSeries;
+/* ========== Stimulus & Answer ========== */
+function showWord(){
+  const wordEl = document.getElementById('stimulusWord');
+  const errX = document.getElementById('errorX');
+  errX.classList.add('hidden');
+  needCorrection = false;
 
+  if(i < SEQ.length){
+    const w = SEQ[i];
+    wordEl.textContent = w;
+    const config = PART_CONFIG[currentPart];
+    expectedKey = config.leftWords.includes(w) ? 'E' : 'I';
+    _trialStart = performance.now();
+  }else{
+    endPhase();
+  }
+}
+
+document.addEventListener('keydown',(e)=>{
+  if(e.code==='Space'){
+    if(!intro.classList.contains('hidden')){ e.preventDefault(); startPart(); return; }
+  }
+  if(e.code==='Enter' && !setup.classList.contains('hidden')){ e.preventDefault(); window.goIntro(); return; }
+
+  if(stage.classList.contains('hidden')) return;
+
+  if(e.key==='e' || e.key==='i'){
+    const key = (e.key==='e') ? 'E' : 'I';
+    const rt  = Math.round(performance.now() - (_trialStart || performance.now()));
+    const word = SEQ[i];
+
+    if(needCorrection){
+      if(key===expectedKey){ i++; showWord(); }
+      return;
+    }
+
+    const correct = (key===expectedKey) ? 1 : 0;
+
+    trialIndex++;
     records.push({
-      idx: i+1,
-      phase: currentPhase + 1,
-      phase_type: PHASES[currentPhase].type,
-      word: seq[i] || '',
-      image: imageSeq[i] || '',
-      answer,
+      idx: trialIndex,
+      part_index: currentPart+1,
+      phase_name: `Part ${currentPart+1} of ${TOTAL_PARTS}`,
+      part_trial_idx: (i+1),
+      word,
+      expected_key: expectedKey,
+      pressed_key: key,
+      correct,
       rt_ms: rt,
-      ts: nowTs(),
-      participant: participantData.participant || '',
-      valid: !invalid,
-      reason: invalid ? (rt < minValidRt ? `too_fast_${rt}ms` : 'spam_series') : ''
+      participant_id: participant.id,
+      age: participant.age,
+      gender: participant.gender,
+      started_at: testStartedAt,
+      finished_at: '' // fill at the very end
     });
+
+    if(correct===1){ i++; showWord(); }
+    else{ document.getElementById('errorX').classList.remove('hidden'); needCorrection = true; }
   }
+});
 
-  function updateCounters() {
-    const validN = records.filter(r => r.valid && r.phase === currentPhase + 1).length;
-    const invalidN = records.filter(r => r.phase === currentPhase + 1).length - validN;
-    elValid.textContent = validN;
-    elInvalid.textContent = invalidN;
-    elIdx.textContent = Math.min(records.filter(r => r.phase === currentPhase + 1).length + 1, seq.length);
-    elCurrentPhase.textContent = currentPhase + 1;
+document.getElementById('btnStart').addEventListener('click', (e)=>{ e.preventDefault(); startPart(); });
 
-    const progress = (records.filter(r => r.phase === currentPhase + 1).length / seq.length) * 100;
-    elProgress.style.width = `${progress}%`;
+/* ========== CSV + Auto Email (3-phase style) + Completion UI ========== */
+/** 1) GAS endpoint — шаардлагатай бол өөрийн шинэ exec URL-р солиорой */
+const AUTO_EMAIL_ENDPOINT = "https://script.google.com/macros/s/AKfycbyabOqbrxqIXXE_gI0W-ykvOJY1zSLAZr4s3NegM054vn4RIcfJMpY2CgB8JDJReG0z/exec";
+
+/** 2) CSV builder */
+function toCSV(rows){
+  const cols = [
+    'idx','part_index','phase_name','part_trial_idx',
+    'word','expected_key','pressed_key','correct','rt_ms',
+    'participant_id','age','gender','started_at','finished_at'
+  ];
+  const header = cols.join(',');
+  const body = rows.map(r => cols.map(c => `"${String(r[c] ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+  return header + '\n' + body;
+}
+
+/** 3) Имэйл илгээх — 3-phase жишээтэй адил JSON payload (csv_data дотор CSV) */
+async function sendAutoEmail(payload){
+  try{
+    await fetch(AUTO_EMAIL_ENDPOINT, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(payload),
+      mode:'no-cors'          // өмнөх 3-phase шиг
+    });
+    console.log('Email send requested (no-cors).');
+  }catch(err){
+    console.error('Auto email error:', err);
   }
+}
 
-  function toCSV(rows) {
-    const cols = ["idx","phase","phase_type","word","image","answer","rt_ms","ts","participant","valid","reason"];
-    const header = cols.join(",");
-    const body = rows.map(r => cols.map(c => {
-      const v = r[c];
-      const s = String(v ?? "");
-      return `"${s.replace(/"/g,'""')}"`;
-    }).join(",")).join("\n");
-    return header + "\n" + body;
-  }
+/** 4) Дуусгахад — payload бүтээж имэйл илгээнэ, дараа нь UI зурна */
+function finalizeResults(){
+  records.forEach(r => r.finished_at = testFinishedAt);
 
-  function downloadFile(name, content, mime="text/csv") {
-    const blob = new Blob([content], {type: mime});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
+  const csv = toCSV(records);
+  const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+  const safeId = (participant.id||'anon').replace(/[^\w]/g,'_');
+  const filename = `iat_results_${safeId}_${ts}.csv`;
+
+  // Phase статистик (энгийн хэлбэр)
+  const phaseStats = Array.from({length: TOTAL_PARTS}, (_, idx) => {
+    const phaseRows = records.filter(r => r.part_index === (idx+1));
+    const avgE = avg(phaseRows.filter(x => x.pressed_key === 'E').map(x => x.rt_ms));
+    const avgI = avg(phaseRows.filter(x => x.pressed_key === 'I').map(x => x.rt_ms));
+    return {
+      part: idx+1,
+      name: `Part ${idx+1} of ${TOTAL_PARTS}`,
+      total: phaseRows.length,
+      avgE: isFinite(avgE)? Math.round(avgE) : null,
+      avgI: isFinite(avgI)? Math.round(avgI) : null
+    };
+  });
+
+  const totalTime = records.reduce((sum, r) => sum + (Number(r.rt_ms)||0), 0);
+
+  // === 3-phase payload загвар ===
+  const payload = {
+    meta: {
+      generated_at: new Date().toISOString(),
+      participant: participant.id,
+      age: participant.age,
+      gender: participant.gender,
+      total_records: records.length,
+      total_time_ms: totalTime,
+      phases: phaseStats
+    },
+    participant_data: {
+      participant: participant.id,
+      age: participant.age,
+      gender: participant.gender,
+      started_at: testStartedAt,
+      finished_at: testFinishedAt
+    },
+    test_records: records,   // хүсвэл авч болно
+    csv_data: csv            // ГОЛ НЬ: CSV-г энд өгнө
+  };
+
+  // Имэйл автоматаар (GAS талд csv_data авч хавсаргадаг байх ёстой)
+  sendAutoEmail(payload);
+
+  // Хэрэглэгчийн completion UI
+  stage.classList.add('hidden');
+  renderCompletionUI(csv, filename);
+}
+
+function avg(a){ if(!a.length) return NaN; return a.reduce((x,y)=>x+y,0)/a.length; }
+
+function escapeHtml(str){
+  return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+}
+
+/** 5) Participant UI — таталт гараар, preview харах товчтой */
+function renderCompletionUI(csv, filename){
+  const previewText = [
+    `Participant: ${participant.id} | Age: ${participant.age} | Gender: ${participant.gender}`,
+    `Started: ${testStartedAt} | Finished: ${testFinishedAt}`,
+    `Trials: ${records.length} | Correct: ${records.filter(r=>r.correct===1).length} | Incorrect: ${records.filter(r=>r.correct===0).length}`,
+    ``,
+    csv.split('\n').slice(0,6).join('\n') + '\n...'
+  ].join('\n');
+
+  completionMount.innerHTML = `
+    <div class="results-box">
+      <div class="results-title">Тест дууслаа — Танд баярлалаа</div>
+
+      <div class="results-role"><strong>Оролцогч:</strong> Хүсвэл өөрөө файлаа татаж авч болно.</div>
+
+      <div class="results-actions">
+        <button class="btn btn-success" id="btn-download">Файлыг татаж авах (CSV)</button>
+        <button class="btn btn-warning" id="btn-toggle">Хариултыг харах</button>
+      </div>
+      <div class="small-note">Тайлбар: Имэйл админ тал руу автоматаар илгээгдсэн.</div>
+
+      <pre class="results-preview" id="results-preview" style="display:none;">${escapeHtml(previewText)}</pre>
+    </div>
+  `;
+
+  document.getElementById('btn-download').onclick = function(){
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download=filename;
+    document.body.appendChild(a);
     a.click();
+    a.remove();
     URL.revokeObjectURL(a.href);
-  }
+  };
 
-  function showStatus(message, type = "info") {
-    elStatus.textContent = message;
-    elStatus.className = "";
-
-    if (type === "success") {
-      elStatus.style.backgroundColor = "rgba(93, 228, 169, 0.2)";
-      elStatus.style.borderLeft = "4px solid var(--success)";
-    } else if (type === "error") {
-      elStatus.style.backgroundColor = "rgba(255, 139, 139, 0.2)";
-      elStatus.style.borderLeft = "4px solid var(--danger)";
-    } else {
-      elStatus.style.backgroundColor = "rgba(255, 202, 122, 0.2)";
-      elStatus.style.borderLeft = "4px solid var(--warning)";
-    }
-
-    elStatus.classList.remove("hidden");
-
-    if (type === "success" || type === "error") {
-      setTimeout(() => {
-        elStatus.classList.add("hidden");
-      }, 5000);
-    }
-  }
-
-  async function sendAutoEmail(payload) {
-    try {
-      showStatus("📧 Үр дүнг автоматаар илгээж байна...", "info");
-
-      const res = await fetch(AUTO_EMAIL_ENDPOINT, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload),
-        mode: 'no-cors'
-      });
-
-      // no-cors mode-д response status шалгаж болохгүй тул амжилттай гэж тооцно
-      showStatus("✅ Үр дүн амжилттай amarmarker@gmail.com руу илгээгдлээ!", "success");
-
-    } catch (error) {
-      console.error('Auto email error:', error);
-      showStatus("❌ Автомат имэйл илгээхэд алдаа гарлаа: " + error.message, "error");
-    }
-  }
-
-  // ===== 5) Event Handlers =====
-
-  // Start Test Button
-  document.getElementById('btnStart').addEventListener('click', () => {
-    participantData = getFormData('setup');
-    
-    if (!participantData.participant) {
-      showStatus("⚠️ Оролцогчийн нэр эсвэл ID оруулна уу.", "error");
-      return;
-    }
-
-    minValidRt = parseInt(participantData.minRt || "200", 10);
-
-    if (minValidRt < 100) {
-      showStatus("⚠️ Anti-spam босго хэт бага байна.", "error");
-      return;
-    }
-
-    // Initialize test
-    initializePhase();
-  });
-
-  function initializePhase() {
-    // Create sequences for current phase
-    seq = [...WORDS];
-    imageSeq = [...IMAGES];
-    
-    if (SHUFFLE) {
-      const indices = Array.from({length: WORDS.length}, (_, i) => i);
-      shuffle(indices);
-      seq = indices.map(i => WORDS[i]);
-      imageSeq = indices.map(i => IMAGES[i]);
-    }
-
-    i = 0;
-    elTotal.textContent = seq.length;
-    elPhaseTitle.textContent = PHASES[currentPhase].name;
-    
-    elSetup.classList.add('hidden');
-    elPhaseBreak.classList.add('hidden');
-    elStage.classList.remove('hidden');
-
-    // Countdown
-    elWord.textContent = "3";
-    elImage.classList.add('hidden');
-    setTimeout(() => {
-      elWord.textContent = "2";
-      setTimeout(() => {
-        elWord.textContent = "1";
-        setTimeout(() => {
-          showStimulus();
-        }, 1000);
-      }, 1000);
-    }, 1000);
-  }
-
-  function showStimulus() {
-    if (i >= seq.length) return endPhase();
-    
-    const phaseType = PHASES[currentPhase].type;
-    
-    // Reset display
-    elWord.classList.add('hidden');
-    elImage.classList.add('hidden');
-    
-    // Show based on phase type
-    if (phaseType === 'word') {
-      elWord.textContent = seq[i];
-      elWord.classList.remove('hidden');
-    } else if (phaseType === 'image') {
-      elImage.src = imageSeq[i];
-      elImage.classList.remove('hidden');
-    } else if (phaseType === 'both') {
-      elWord.textContent = seq[i];
-      elImage.src = imageSeq[i];
-      elWord.classList.remove('hidden');
-      elImage.classList.remove('hidden');
-    }
-    
-    startTime = performance.now();
-    updateCounters();
-  }
-
-  function answer(a) {
-    const rt = Math.round(performance.now() - startTime);
-    pushAnswer(a, rt);
-    i++;
-    if (i < seq.length) showStimulus(); else endPhase();
-  }
-
-  function endPhase() {
-    if (currentPhase < PHASES.length - 1) {
-      // Show phase break
-      elStage.classList.add('hidden');
-      elPhaseBreak.classList.remove('hidden');
-      
-      document.getElementById('breakTitle').textContent = `${currentPhase + 1}-р хэсэг дууслаа!`;
-      
-      if (currentPhase === 0) {
-        document.getElementById('breakMessage').textContent = "2-р хэсэгт зураг харж хариулна.";
-      } else if (currentPhase === 1) {
-        document.getElementById('breakMessage').textContent = "3-р хэсэгт зураг + үг хослол харж хариулна.";
-      }
-    } else {
-      // All phases done
-      finish();
-    }
-  }
-
-  // Next Phase Button
-  document.getElementById('btnNextPhase').addEventListener('click', () => {
-    currentPhase++;
-    initializePhase();
-  });
-
-  document.getElementById('btnI').addEventListener('click', ()=>answer('I'));
-  document.getElementById('btnE').addEventListener('click', ()=>answer('E'));
-
-  document.getElementById('btnUndo').addEventListener('click', () => {
-    const currentPhaseRecords = records.filter(r => r.phase === currentPhase + 1);
-    if (!currentPhaseRecords.length) {
-      showStatus("Буцаах боломжтой хариулт байхгүй байна.", "error");
-      return;
-    }
-    
-    // Remove last record for current phase
-    for (let idx = records.length - 1; idx >= 0; idx--) {
-      if (records[idx].phase === currentPhase + 1) {
-        records.splice(idx, 1);
-        break;
-      }
-    }
-    
-    i = Math.max(0, i - 1);
-    if (lastAnswers.length > 0) lastAnswers.pop();
-    if (lastRTs.length > 0) lastRTs.pop();
-    showStimulus();
-    showStatus("Сүүлчийн хариултыг амжилттай буцаав.", "success");
-  });
-
-  document.getElementById('btnFinish').addEventListener('click', () => {
-    if (confirm("Туршилтыг дуусгах уу?")) {
-      finish();
-    }
-  });
-
-  function finish() {
-    elStage.classList.add('hidden');
-    elPhaseBreak.classList.add('hidden');
-    elResult.classList.remove('hidden');
-
-    const validRows = records.filter(r => r.valid);
-    
-    // Calculate stats by phase
-    const phaseStats = PHASES.map((phase, idx) => {
-      const phaseRecords = validRows.filter(r => r.phase === idx + 1);
-      const avgI = average(phaseRecords.filter(r => r.answer === 'I').map(r=>r.rt_ms));
-      const avgE = average(phaseRecords.filter(r => r.answer === 'E').map(r=>r.rt_ms));
-      
-      return {
-        phase: idx + 1,
-        name: phase.name,
-        total: records.filter(r => r.phase === idx + 1).length,
-        valid: phaseRecords.length,
-        invalid: records.filter(r => r.phase === idx + 1 && !r.valid).length,
-        avgI: avgI,
-        avgE: avgE
-      };
-    });
-
-    const totalTime = validRows.reduce((sum, r) => sum + r.rt_ms, 0);
-
-    let summaryHTML = `
-      <div class="result-item">
-        <div>Нийт хариулт (бүх хэсэг):</div>
-        <div class="result-value">${records.length}</div>
-      </div>
-      <div class="result-item">
-        <div>Хүчинтэй хариулт (бүх хэсэг):</div>
-        <div class="result-value ok">${validRows.length}</div>
-      </div>
-      <div class="result-item">
-        <div>Хүчингүй хариулт (бүх хэсэг):</div>
-        <div class="result-value bad">${records.length - validRows.length}</div>
-      </div>
-      <div class="result-item">
-        <div>Нийт зарцуулсан хугацаа:</div>
-        <div class="result-value">${Math.round(totalTime/1000)} секунд</div>
-      </div>
-    `;
-
-    // Add phase-specific stats
-    phaseStats.forEach(stat => {
-      summaryHTML += `
-        <div class="result-item" style="margin-top: 20px; border-top: 2px solid var(--accent); padding-top: 12px;">
-          <div><strong>${stat.name}</strong></div>
-          <div></div>
-        </div>
-        <div class="result-item">
-          <div>Нийт хариулт:</div>
-          <div class="result-value">${stat.total}</div>
-        </div>
-        <div class="result-item">
-          <div>Хүчинтэй хариулт:</div>
-          <div class="result-value ok">${stat.valid}</div>
-        </div>
-        <div class="result-item">
-          <div>I (эерэг) дундаж RT:</div>
-          <div class="result-value">${isFinite(stat.avgI)?Math.round(stat.avgI):'-'} ms</div>
-        </div>
-        <div class="result-item">
-          <div>E (сөрөг) дундаж RT:</div>
-          <div class="result-value">${isFinite(stat.avgE)?Math.round(stat.avgE):'-'} ms</div>
-        </div>
-      `;
-    });
-
-    elSummary.innerHTML = summaryHTML;
-
-    const payload = {
-      meta: {
-        generated_at: nowTs(),
-        participant: participantData.participant,
-        min_valid_rt_ms: minValidRt,
-        same_key_spam_window: SAME_KEY_SPAM_WINDOW,
-        same_key_spam_rt_ms: SAME_KEY_SPAM_RT,
-        total_records: records.length,
-        total_valid: validRows.length,
-        total_invalid: records.length - validRows.length,
-        total_time_ms: totalTime,
-        phases: phaseStats
-      },
-      participant_data: participantData,
-      test_records: records,
-      csv_data: toCSV(records)
-    };
-
-    elDebug.value = JSON.stringify(payload, null, 2);
-
-    // Send auto email
-    sendAutoEmail(payload);
-
-    // CSV download
-    document.getElementById('btnDownloadCsv').onclick = () => {
-      const csv = toCSV(records);
-      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-      const filename = `ie_test_3phase_${participantData.participant.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}.csv`;
-      downloadFile(filename, csv, "text/csv");
-      showStatus("CSV файл амжилттай татагдлаа.", "success");
-    };
-  }
-
-  function average(a) {
-    if (!a.length) return NaN;
-    return a.reduce((x,y)=>x+y,0)/a.length;
-  }
-
-  // Keyboard shortcuts
-  document.addEventListener('keydown', (e) => {
-    if (elStage.classList.contains('hidden')) return;
-
-    if (e.key === 'i' || e.key === 'I') {
-      document.getElementById('btnI').click();
-      document.getElementById('btnI').style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        document.getElementById('btnI').style.transform = '';
-      }, 150);
-    } else if (e.key === 'e' || e.key === 'E') {
-      document.getElementById('btnE').click();
-      document.getElementById('btnE').style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        document.getElementById('btnE').style.transform = '';
-      }, 150);
-    } else if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      document.getElementById('btnUndo').click();
-    }
-  });
+  document.getElementById('btn-toggle').onclick = function(){
+    const pr = document.getElementById('results-preview');
+    if (pr.style.display === 'none'){ pr.style.display = 'block'; this.textContent='Хариултыг нуух'; }
+    else { pr.style.display = 'none'; this.textContent='Хариултыг харах'; }
+  };
+}
 </script>
 </body>
 </html>
